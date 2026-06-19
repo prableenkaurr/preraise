@@ -1,6 +1,6 @@
 # PreRaise.ai
 
-Surface startups **before they go mainstream.** Enter an investment thesis or
+PreRaise startups **before they go mainstream.** Enter an investment thesis or
 sector — `AI fashion tech`, `developer tools`, `consumer AI` — and PreRaise.ai
 discovers companies gaining early traction and ranks them by signal strength.
 
@@ -22,16 +22,6 @@ corroboration bonus when a startup shows up on more than one, and nudges by the
 sector's overall Google Trends momentum. Each result card shows the overall
 score, a per-source signal bar with an up / flat / down arrow, and a **"Why
 now"** sentence explaining the single strongest signal.
-
-## Fund personalization
-
-Append `?fund=` to white-label the app for a specific fund — the navbar, hero,
-and page title all update:
-
-- `surfaced.ai?fund=PearVC` → **PreRaise.ai for Pear VC**
-- `surfaced.ai?fund=TribeCapital` → **PreRaise.ai for Tribe Capital**
-
-Unknown funds are accepted too; camelCase slugs are prettified automatically.
 
 ## Stack
 
