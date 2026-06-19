@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: theme("colors.canvas");
+  color: theme("colors.ink");
+}
+
+/* Shimmer fill for skeleton cards. */
+.skeleton-fill {
+  background-image: linear-gradient(
+    90deg,
+    rgba(15, 27, 45, 0.04) 25%,
+    rgba(15, 27, 45, 0.09) 50%,
+    rgba(15, 27, 45, 0.04) 75%
+  );
+  background-size: 200% 100%;
+}
