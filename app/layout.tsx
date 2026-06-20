@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PreRaise.ai — surface startups before they go mainstream",
+  title: "10-Minute Memo — VC investment memos from any startup URL",
   description:
-    "Enter an investment thesis or sector and PreRaise.ai discovers startups gaining early traction, ranked by signal strength across Hacker News, ProductHunt, and Google Trends.",
+    "Paste a startup website and get a professional, VC-style investment memo in under 60 seconds — problem, product, market, competition, bull & bear case, and a recommendation.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

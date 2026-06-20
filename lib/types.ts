@@ -1,59 +1,101 @@
-export type SourceName = "hackernews" | "producthunt" | "googletrends";
+// ---------------------------------------------------------------------------
+// Scraping
+// ---------------------------------------------------------------------------
 
-/** Direction of the signal — drives the arrow indicator in the UI. */
-export type Trend = "up" | "flat" | "down";
+/** The kind of page we try to find and scrape on a startup's site. */
+export type PageType = "homepage" | "about" | "careers" | "pricing";
 
-export interface SourceSignal {
-  source: SourceName;
-  /** 0-100 normalized strength of this source's signal for the startup. */
-  score: number;
-  /** Trajectory arrow — rising, holding, or fading. */
-  trend: Trend;
-  /** Whether this source actually had data for the startup. */
-  present: boolean;
-  /** Human-readable evidence for why this source fired. */
-  detail: string;
-  /** Link back to the originating item, when available. */
-  url?: string;
-  /** Raw metrics kept around for transparency / debugging. */
-  metrics: Record<string, number | string>;
+/** A single scraped page reduced to clean, model-ready text. */
+export interface ScrapedPage {
+  type: PageType;
+  url: string;
+  title: string;
+  /** Cleaned, whitespace-collapsed visible text (already length-capped). */
+  text: string;
 }
 
-export interface RawCandidate {
-  /** Display name of the startup / product. */
+/** Everything we managed to pull from a company's website. */
+export interface ScrapedSite {
+  /** The canonical URL the user submitted (normalized). */
+  url: string;
+  /** Hostname, e.g. "cursor.com" — a decent fallback company name. */
+  domain: string;
+  pages: ScrapedPage[];
+  /** Pages we attempted but failed to fetch, for transparency. */
+  failed: { type: PageType; url: string; reason: string }[];
+}
+
+// ---------------------------------------------------------------------------
+// Memo
+// ---------------------------------------------------------------------------
+
+export type Recommendation = "Strong Buy" | "Worth Further Research" | "Pass";
+
+export interface CompanySnapshot {
   name: string;
-  tagline?: string;
-  url?: string;
-  signal: SourceSignal;
+  oneLiner: string;
+  industry: string;
+  businessModel: string;
 }
 
-export interface RankedStartup {
-  rank: number;
-  name: string;
-  /** One-line description. */
-  tagline?: string;
-  url?: string;
-  /** Overall 0-100 Surfaced score. */
-  surfacedScore: number;
-  /** Always three signals, ordered Hacker News, ProductHunt, Google Trends. */
-  signals: SourceSignal[];
-  /** One sentence explaining the strongest signal driving this ranking. */
-  whyNow: string;
+export interface Memo {
+  companySnapshot: CompanySnapshot;
+  problem: {
+    statement: string;
+    importance: string;
+  };
+  product: {
+    core: string;
+    keyFeatures: string[];
+    differentiation: string;
+  };
+  market: {
+    category: string;
+    trends: string[];
+    adoptionDrivers: string[];
+  };
+  competition: {
+    competitors: string[];
+    advantages: string[];
+    weaknesses: string[];
+  };
+  team: {
+    hiringActivity: string;
+    growthIndicators: string[];
+    strengths: string[];
+  };
+  /** Exactly three reasons this could become a category leader. */
+  bullCase: string[];
+  bearCase: {
+    risks: string[];
+    competitiveThreats: string[];
+    executionRisks: string[];
+  };
+  /** One concise paragraph, VC-associate voice. */
+  investmentThesis: string;
+  recommendation: Recommendation;
+  /** 0-100 — how confident the analysis is given the available signal. */
+  confidenceScore: number;
 }
 
-export interface SourceStatus {
-  source: SourceName;
-  ok: boolean;
-  /** Number of candidates / terms this source contributed. */
-  count: number;
-  note?: string;
-}
-
-export interface ScanResult {
-  sector: string;
+/**
+ * Full payload returned by /api/generate. The complete `site` is included so
+ * the client can pass it back to /api/chat as grounding context — the API
+ * stays stateless (no server-side session storage).
+ */
+export interface MemoResult {
+  memo: Memo;
+  site: ScrapedSite;
   generatedAt: string;
-  startups: RankedStartup[];
-  sources: SourceStatus[];
-  /** 0-100 momentum of the sector overall, from Google Trends. */
-  sectorMomentum: number;
+}
+
+// ---------------------------------------------------------------------------
+// Chat
+// ---------------------------------------------------------------------------
+
+export type ChatRole = "user" | "model";
+
+export interface ChatMessage {
+  role: ChatRole;
+  content: string;
 }

@@ -1,10 +1,10 @@
 /**
  * URL personalization. `?fund=PearVC` re-brands the whole app to
- * "PreRaise.ai for Pear VC". Unknown funds are still accepted — we just
+ * "10-Minute Memo for Pear VC". Unknown funds are still accepted — we just
  * prettify the camelCase slug into spaced words.
  */
 
-const BASE_BRAND = "PreRaise.ai";
+const BASE_BRAND = "10-Minute Memo";
 
 // Nicely-formatted display names for funds we know about. Anything not listed
 // falls back to camelCase splitting (e.g. "PearVC" -> "Pear VC").
