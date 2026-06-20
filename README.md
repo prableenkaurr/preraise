@@ -1,59 +1,129 @@
-# PreRaise.ai
+# Partner Memo
 
-Surface startups **before they go mainstream.** Enter an investment thesis or
-sector — `AI fashion tech`, `developer tools`, `consumer AI` — and PreRaise.ai
-discovers companies gaining early traction and ranks them by signal strength.
+Generate a venture-style investment memo from any startup website in under a minute.
 
-Live: **[surfaced.ai](https://surfaced.ai)**
+Partner Memo helps investors, founders, operators, and students quickly understand a company by transforming publicly available information into a structured investment memo.
 
-## How it works
+Live Demo: /https://preraise.vercel.app/
 
-For a given sector the app queries three independent sources, server-side, and
-blends them into a single **Surfaced score (0–100)**:
+## What It Does
 
-| Signal | Source | What it measures |
-| --- | --- | --- |
-| **HN** | [Hacker News Algolia API](https://hn.algolia.com/api) | Show HN traction over the last 90 days — recency-weighted points + comment velocity. No key required. |
-| **PH** | [ProductHunt API v2 (GraphQL)](https://api.producthunt.com/v2/docs) | Vote velocity on recent launches relative to time since launch. |
-| **Trends** | Google Trends | Search-interest *trajectory* (not absolute volume) for discovered startup names. |
+Paste a startup URL:
 
-The Surfaced score renormalizes over whichever sources fired, adds a
-corroboration bonus when a startup shows up on more than one, and nudges by the
-sector's overall Google Trends momentum. Each result card shows the overall
-score, a per-source signal bar with an up / flat / down arrow, and a **"Why
-now"** sentence explaining the single strongest signal.
+```text
+https://cursor.com
+https://perplexity.ai
+https://scale.com
+```
 
-## Stack
+Partner Memo automatically analyzes the company and generates a structured report covering:
 
-- Next.js 14 (App Router) + TypeScript
-- Tailwind CSS
-- All third-party API calls run server-side (in `/app/api/scan`) to keep keys off the client
-- Deploys to Vercel as-is
+* Company Snapshot
+* Problem
+* Product
+* Market Opportunity
+* Competitive Landscape
+* Team Signals
+* Bull Case
+* Bear Case
+* Investment Thesis
+* Investment Recommendation
 
-## Local development
+## Example Output
+
+For each company, Partner Memo generates:
+
+### Company Snapshot
+
+A concise overview of the company, product, and business model.
+
+### Problem
+
+The customer pain point being addressed and why it matters.
+
+### Product
+
+Key features, differentiation, and value proposition.
+
+### Market Opportunity
+
+Market category, adoption drivers, and growth potential.
+
+### Competitive Landscape
+
+Likely competitors, strengths, weaknesses, and positioning.
+
+### Team Signals
+
+Hiring activity and indicators of company growth.
+
+### Bull Case
+
+Reasons the company could become a category leader.
+
+### Bear Case
+
+Risks, execution challenges, and competitive threats.
+
+### Investment Thesis
+
+A concise VC-style summary of the opportunity.
+
+### Recommendation
+
+* Strong Buy
+* Worth Further Research
+* Pass
+
+## Features
+
+* Startup website analysis
+* Automated investment memo generation
+* AI-powered competitive analysis
+* Export to PDF
+* Export to Markdown
+* Copy-to-clipboard support
+* Mobile responsive design
+* Investor-specific branding support
+
+## Tech Stack
+
+* Next.js 14
+* TypeScript
+* Tailwind CSS
+* Google Gemini
+* Cheerio
+* Vercel
+
+## Local Development
 
 ```bash
 npm install
-cp .env.example .env.local   # optional: add PRODUCTHUNT_TOKEN
-npm run dev                  # http://localhost:3000
+cp .env.example .env.local
+npm run dev
 ```
 
-### Environment
+Open:
 
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `PRODUCTHUNT_TOKEN` | Optional | ProductHunt API v2 developer token. Without it the ProductHunt signal is skipped and ranking proceeds on Hacker News + Google Trends. Create one under your [PH API applications](https://www.producthunt.com/v2/oauth/applications). |
+```text
+http://localhost:3000
+```
 
-Hacker News needs no key. Google Trends has no official API — the app hits the
-public frontend endpoints and degrades gracefully (neutral momentum) if they
-rate-limit.
+## Environment Variables
 
-## Deploy
+```env
+GEMINI_API_KEY=your_api_key
+```
+
+## Deployment
 
 ```bash
 npm run build
 vercel --prod
 ```
 
-Set `PRODUCTHUNT_TOKEN` in the Vercel project's environment variables to enable
-the ProductHunt signal in production.
+## Why Partner Memo?
+
+Early-stage investors spend significant time researching companies, synthesizing information, and drafting investment memos.
+
+Partner Memo accelerates the first-pass diligence process by transforming a startup website into a structured investment analysis in under a minute.
