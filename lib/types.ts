@@ -90,6 +90,69 @@ export interface MemoResult {
 }
 
 // ---------------------------------------------------------------------------
+// Portfolio Intelligence
+// ---------------------------------------------------------------------------
+
+export interface CompanyMetrics {
+  companyName: string;
+  sector: string;
+  foundedYear: number;
+  founders: string[];
+  founderBackgrounds: string[];
+  totalFunding: string;
+  latestRound: string;
+  employeeCount: number;
+  hiringVelocity: number;
+  githubStars?: number;
+  productHuntVotes?: number;
+  websiteTraffic?: number;
+  aiSummary: string;
+}
+
+export interface PortfolioInsight {
+  title: string;
+  observation: string;
+  evidence: string[];
+}
+
+export interface PortfolioAnalysis {
+  firm: string;
+  portfolio: string[];
+  companies: CompanyMetrics[];
+  sectorAnalysis: { sector: string; percent: number }[];
+  founderAnalysis: { pattern: string; percent: number }[];
+  fundingAnalysis: {
+    averageEntryStage: string;
+    averageFirstCheck: string;
+    medianFundingRaised: string;
+  };
+  successRankings: {
+    fundingRaised: string[];
+    employeeGrowth: string[];
+    productAdoption: string[];
+  };
+  topPerformers: string[];
+  emergingThesis: string;
+  insights: PortfolioInsight[];
+  sourceNotes: string[];
+}
+
+export interface PortfolioComparison {
+  firms: [string, string];
+  analyses: [PortfolioAnalysis, PortfolioAnalysis];
+  differences: { firm: string; points: string[] }[];
+  sharedThemes: string[];
+  summary: string;
+}
+
+export interface PortfolioAnalysisResult {
+  mode: "single" | "compare";
+  generatedAt: string;
+  analysis?: PortfolioAnalysis;
+  comparison?: PortfolioComparison;
+}
+
+// ---------------------------------------------------------------------------
 // Chat
 // ---------------------------------------------------------------------------
 

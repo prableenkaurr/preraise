@@ -10,6 +10,9 @@ interface LoadingStepsProps {
   /** Index of the step currently in progress. */
   current: number;
   domain?: string;
+  title?: string;
+  subtitle?: string;
+  steps?: readonly string[];
 }
 
 function Check() {
@@ -29,18 +32,24 @@ function Spinner() {
   );
 }
 
-export default function LoadingSteps({ current, domain }: LoadingStepsProps) {
+export default function LoadingSteps({
+  current,
+  domain,
+  title = "Building your investment memo",
+  subtitle,
+  steps = LOADING_STEPS,
+}: LoadingStepsProps) {
   return (
     <main className="mx-auto max-w-2xl px-5 py-16">
       <p className="text-sm font-medium text-ink-soft">
-        Reading {domain ?? "the website"}&hellip;
+        {subtitle ?? `Reading ${domain ?? "the website"}...`}
       </p>
       <h2 className="mt-1 text-2xl font-semibold tracking-tight text-ink">
-        Building your investment memo
+        {title}
       </h2>
 
       <ol className="mt-8 space-y-3">
-        {LOADING_STEPS.map((label, i) => {
+        {steps.map((label, i) => {
           const done = i < current;
           const active = i === current;
           return (

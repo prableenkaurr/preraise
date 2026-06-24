@@ -1,4 +1,4 @@
-import { Memo, ScrapedSite } from "./types";
+import { Memo, PortfolioAnalysis, PortfolioComparison, ScrapedSite } from "./types";
 import { siteToContext } from "./scrape";
 
 /** Shared persona for both memo generation and the follow-up chat. */
@@ -51,4 +51,37 @@ ${JSON.stringify(memo, null, 2)}
 === SCRAPED WEBSITE CONTENT ===
 ${siteToContext(site)}
 === END CONTEXT ===`;
+}
+
+export function portfolioInsightPrompt(analysis: PortfolioAnalysis): string {
+  return `${VC_PERSONA}
+
+Analyze the venture portfolio data below.
+
+Identify:
+1. Common founder patterns
+2. Common market characteristics
+3. Common business models
+4. Sectors with highest concentration
+5. Signals correlated with strongest performers
+6. Potential future investment themes
+
+Provide evidence-backed observations. Do not invent companies or metrics beyond
+the JSON. Where metrics are estimates, phrase conclusions cautiously.
+
+=== PORTFOLIO DATA ===
+${JSON.stringify(analysis, null, 2)}
+=== END DATA ===`;
+}
+
+export function portfolioComparisonPrompt(comparison: PortfolioComparison): string {
+  return `${VC_PERSONA}
+
+Compare the two venture portfolios below. Identify what each fund seems to prefer,
+which themes overlap, and what an investor should infer from the differences.
+Ground every claim in the JSON and keep it crisp.
+
+=== PORTFOLIO COMPARISON DATA ===
+${JSON.stringify(comparison, null, 2)}
+=== END DATA ===`;
 }

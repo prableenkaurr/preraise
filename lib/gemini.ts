@@ -1,6 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { ChatMessage, Memo, ScrapedSite } from "./types";
-import { chatSystemInstruction, memoPrompt } from "./prompts";
+import {
+  ChatMessage,
+  Memo,
+  PortfolioAnalysis,
+  PortfolioComparison,
+  PortfolioInsight,
+  ScrapedSite,
+} from "./types";
+import {
+  chatSystemInstruction,
+  memoPrompt,
+  portfolioComparisonPrompt,
+  portfolioInsightPrompt,
+} from "./prompts";
 
 const MODEL = "gemini-2.5-flash";
 
@@ -106,6 +118,46 @@ const MEMO_SCHEMA = {
   ],
 } as const;
 
+const INSIGHTS_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    insights: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          title: { type: Type.STRING },
+          observation: { type: Type.STRING },
+          evidence: stringArray,
+        },
+        required: ["title", "observation", "evidence"],
+      },
+    },
+    emergingThesis: { type: Type.STRING },
+  },
+  required: ["insights", "emergingThesis"],
+} as const;
+
+const COMPARISON_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    summary: { type: Type.STRING },
+    sharedThemes: stringArray,
+    differences: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          firm: { type: Type.STRING },
+          points: stringArray,
+        },
+        required: ["firm", "points"],
+      },
+    },
+  },
+  required: ["summary", "sharedThemes", "differences"],
+} as const;
+
 /** Run the scraped site through Gemini and return a validated memo. */
 export async function generateMemo(site: ScrapedSite): Promise<Memo> {
   const ai = getClient();
@@ -165,5 +217,109 @@ export async function chatWithMemo(
   } catch (e) {
     if (e instanceof GeminiError) throw e;
     throw new GeminiError(`Gemini request failed: ${(e as Error).message}`);
+  }
+}
+
+function fallbackInsights(analysis: PortfolioAnalysis): PortfolioInsight[] {
+  const topSector = analysis.sectorAnalysis[0];
+  const topFounderPattern = analysis.founderAnalysis[0];
+  return [
+    {
+      title: "Sector concentration",
+      observation: `${analysis.firm} appears most concentrated in ${topSector?.sector ?? "software"}, suggesting a clear preference for markets where software can compound distribution and data advantages.`,
+      evidence: [
+        `${topSector?.percent ?? 0}% of sampled companies sit in ${topSector?.sector ?? "the leading sector"}.`,
+        `Top performers include ${analysis.topPerformers.join(", ")}.`,
+      ],
+    },
+    {
+      title: "Founder archetype",
+      observation: `The portfolio skews toward ${topFounderPattern?.pattern.toLowerCase() ?? "technical"} founders with credible product-building backgrounds.`,
+      evidence: [
+        `${topFounderPattern?.percent ?? 0}% of sampled companies match this founder pattern.`,
+        analysis.companies
+          .slice(0, 3)
+          .map((c) => `${c.companyName}: ${c.founderBackgrounds.join(", ")}`)
+          .join("; "),
+      ],
+    },
+    {
+      title: "Outperformance signal",
+      observation:
+        "The strongest companies tend to combine visible adoption with large financing capacity, which is consistent with category-defining software outcomes.",
+      evidence: [
+        `Funding leaders: ${analysis.successRankings.fundingRaised.slice(0, 3).join(", ")}.`,
+        `Product adoption leaders: ${analysis.successRankings.productAdoption.slice(0, 3).join(", ")}.`,
+      ],
+    },
+  ];
+}
+
+export async function enrichPortfolioAnalysis(
+  analysis: PortfolioAnalysis
+): Promise<PortfolioAnalysis> {
+  let raw: string | undefined;
+  try {
+    const res = await getClient().models.generateContent({
+      model: MODEL,
+      contents: portfolioInsightPrompt(analysis),
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: INSIGHTS_SCHEMA,
+        temperature: 0.35,
+      },
+    });
+    raw = res.text;
+  } catch {
+    return { ...analysis, insights: fallbackInsights(analysis) };
+  }
+
+  try {
+    const parsed = JSON.parse(raw ?? "{}") as {
+      insights?: PortfolioInsight[];
+      emergingThesis?: string;
+    };
+    return {
+      ...analysis,
+      insights: parsed.insights?.length ? parsed.insights : fallbackInsights(analysis),
+      emergingThesis: parsed.emergingThesis || analysis.emergingThesis,
+    };
+  } catch {
+    return { ...analysis, insights: fallbackInsights(analysis) };
+  }
+}
+
+export async function enrichPortfolioComparison(
+  comparison: PortfolioComparison
+): Promise<PortfolioComparison> {
+  let raw: string | undefined;
+  try {
+    const res = await getClient().models.generateContent({
+      model: MODEL,
+      contents: portfolioComparisonPrompt(comparison),
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: COMPARISON_SCHEMA,
+        temperature: 0.35,
+      },
+    });
+    raw = res.text;
+  } catch {
+    return comparison;
+  }
+
+  try {
+    const parsed = JSON.parse(raw ?? "{}") as Pick<
+      PortfolioComparison,
+      "summary" | "sharedThemes" | "differences"
+    >;
+    return {
+      ...comparison,
+      summary: parsed.summary || comparison.summary,
+      sharedThemes: parsed.sharedThemes?.length ? parsed.sharedThemes : comparison.sharedThemes,
+      differences: parsed.differences?.length ? parsed.differences : comparison.differences,
+    };
+  } catch {
+    return comparison;
   }
 }
