@@ -18,61 +18,34 @@ function Bar({ label, value }: { label: string; value: number }) {
   );
 }
 
-function Metric({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-lg border border-line bg-canvas px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink/70">{label}</p>
-      <p className="mt-1 text-lg font-semibold text-ink">{value}</p>
-    </div>
-  );
-}
+const STAGE_COLORS: Record<string, string> = {
+  "Seed": "bg-violet-50 text-violet-700 border-violet-200",
+  "Series A–B": "bg-blue-50 text-blue-700 border-blue-200",
+  "Series C–D": "bg-sky-50 text-sky-700 border-sky-200",
+  "Growth": "bg-amber-50 text-amber-700 border-amber-200",
+  "Public": "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "Acquired": "bg-slate-50 text-slate-600 border-slate-200",
+};
 
-function CompanyTable({ companies }: { companies: CompanyMetrics[] }) {
+function CompanyList({ companies }: { companies: CompanyMetrics[] }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-line">
-      <table className="min-w-[860px] divide-y divide-line text-left text-sm">
-        <thead className="bg-canvas text-xs uppercase tracking-wide text-ink/70">
-          <tr>
-            <th className="px-4 py-3 font-semibold">Company</th>
-            <th className="px-4 py-3 font-semibold">Sector</th>
-            <th className="px-4 py-3 font-semibold">Founded</th>
-            <th className="px-4 py-3 font-semibold">Funding</th>
-            <th className="px-4 py-3 font-semibold">Employees</th>
-            <th className="px-4 py-3 font-semibold">Signals</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line bg-white text-ink-soft">
-          {companies.map((company) => (
-            <tr key={company.companyName}>
-              <td className="px-4 py-3 font-medium text-ink">{company.companyName}</td>
-              <td className="px-4 py-3">{company.sector}</td>
-              <td className="px-4 py-3">{company.foundedYear}</td>
-              <td className="px-4 py-3">
-                {company.totalFunding}
-                <span className="block text-xs text-ink-soft/75">{company.latestRound}</span>
-              </td>
-              <td className="px-4 py-3">
-                {company.employeeCount.toLocaleString()}
-                <span className="block text-xs text-ink-soft/75">
-                  {company.hiringVelocity > 0 ? "+" : ""}
-                  {company.hiringVelocity}% hiring velocity
-                </span>
-              </td>
-              <td className="px-4 py-3">
-                {company.githubStars ? `${company.githubStars.toLocaleString()} GitHub stars` : null}
-                {company.productHuntVotes ? (
-                  <span className="block">{company.productHuntVotes.toLocaleString()} PH votes</span>
-                ) : null}
-                {company.websiteTraffic ? (
-                  <span className="block">
-                    {(company.websiteTraffic / 1_000_000).toFixed(1)}M visits
-                  </span>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="grid gap-2 sm:grid-cols-2">
+      {companies.map((c) => (
+        <div key={c.companyName} className="rounded-lg border border-line bg-canvas p-3">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="font-semibold text-ink">{c.companyName}</p>
+              <p className="text-xs text-ink-soft">{c.sector} · {c.foundedYear}</p>
+            </div>
+            <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${STAGE_COLORS[c.stage] ?? "bg-line text-ink-soft border-line"}`}>
+              {c.stage}
+            </span>
+          </div>
+          {c.founders.length > 0 && (
+            <p className="mt-1.5 text-xs text-ink-soft/80">{c.founders.join(", ")}</p>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -80,28 +53,25 @@ function CompanyTable({ companies }: { companies: CompanyMetrics[] }) {
 function SingleAnalysis({ analysis }: { analysis: PortfolioAnalysis }) {
   return (
     <div className="print-full min-w-0 space-y-5">
-      <MemoSection id="portfolio-summary" index={1} title="Portfolio Summary">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Metric label="Companies sampled" value={analysis.portfolio.length} />
-          <Metric label="Median funding" value={analysis.fundingAnalysis.medianFundingRaised} />
-          <Metric label="Entry stage" value={analysis.fundingAnalysis.averageEntryStage} />
-        </div>
+      <MemoSection id="portfolio-summary" index={1} title="Portfolio Overview">
         <Field label="Emerging thesis">{analysis.emergingThesis}</Field>
-        <Field label="Top performers">
-          <Bullets items={analysis.topPerformers} />
-        </Field>
+        {analysis.topPerformers.length > 0 && (
+          <Field label="Notable breakouts">
+            <Bullets items={analysis.topPerformers} />
+          </Field>
+        )}
       </MemoSection>
 
       <MemoSection id="portfolio-patterns" index={2} title="Pattern Detection">
         <div className="grid gap-6 md:grid-cols-2">
-          <Field label="Sector analysis">
+          <Field label="Sector concentration">
             <div className="space-y-3">
               {analysis.sectorAnalysis.map((item) => (
                 <Bar key={item.sector} label={item.sector} value={item.percent} />
               ))}
             </div>
           </Field>
-          <Field label="Founder analysis">
+          <Field label="Founder archetypes">
             <div className="space-y-3">
               {analysis.founderAnalysis.map((item) => (
                 <Bar key={item.pattern} label={item.pattern} value={item.percent} />
@@ -109,31 +79,27 @@ function SingleAnalysis({ analysis }: { analysis: PortfolioAnalysis }) {
             </div>
           </Field>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Metric label="Avg. first check" value={analysis.fundingAnalysis.averageFirstCheck} />
-          <Metric label="Funding leader" value={analysis.successRankings.fundingRaised[0]} />
-          <Metric label="Adoption leader" value={analysis.successRankings.productAdoption[0]} />
-        </div>
       </MemoSection>
 
-      <MemoSection id="portfolio-insights" index={3} title="LLM Insights">
-        <div className="grid gap-4">
-          {analysis.insights.map((insight) => (
-            <div key={insight.title} className="rounded-lg border border-line bg-canvas p-4">
-              <h3 className="font-semibold text-ink">{insight.title}</h3>
-              <p className="mt-1">{insight.observation}</p>
-              <div className="mt-3">
-                <Bullets items={insight.evidence} />
+      {analysis.insights.length > 0 && (
+        <MemoSection id="portfolio-insights" index={3} title="AI Insights">
+          <div className="grid gap-4">
+            {analysis.insights.map((insight) => (
+              <div key={insight.title} className="rounded-lg border border-line bg-canvas p-4">
+                <h3 className="font-semibold text-ink">{insight.title}</h3>
+                <p className="mt-1">{insight.observation}</p>
+                <div className="mt-3">
+                  <Bullets items={insight.evidence} />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </MemoSection>
+            ))}
+          </div>
+        </MemoSection>
+      )}
 
-      <MemoSection id="portfolio-companies" index={4} title="Company Signals">
-        <CompanyTable companies={analysis.companies} />
+      <MemoSection id="portfolio-companies" index={analysis.insights.length > 0 ? 4 : 3} title="Portfolio Companies">
+        <CompanyList companies={analysis.companies} />
       </MemoSection>
-
     </div>
   );
 }
@@ -160,8 +126,7 @@ export default function PortfolioView({
           {comparison ? `${comparison.firms[0]} vs ${comparison.firms[1]}` : analysis?.firm}
         </h1>
         <p className="mt-2 max-w-3xl text-ink-soft">
-          Portfolio concentration, founder archetypes, public adoption signals, and AI-generated
-          investment themes.
+          Portfolio concentration, founder archetypes, and AI-generated investment themes.
         </p>
       </div>
 

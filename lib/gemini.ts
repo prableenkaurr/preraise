@@ -244,12 +244,12 @@ function fallbackInsights(analysis: PortfolioAnalysis): PortfolioInsight[] {
       ],
     },
     {
-      title: "Outperformance signal",
+      title: "Breakout signal",
       observation:
-        "The strongest companies tend to combine visible adoption with large financing capacity, which is consistent with category-defining software outcomes.",
+        "The strongest companies in this portfolio share a pattern of deep technical differentiation paired with a go-to-market wedge that compounds over time.",
       evidence: [
-        `Funding leaders: ${analysis.successRankings.fundingRaised.slice(0, 3).join(", ")}.`,
-        `Product adoption leaders: ${analysis.successRankings.productAdoption.slice(0, 3).join(", ")}.`,
+        `Notable breakouts: ${analysis.topPerformers.join(", ")}.`,
+        `All share founder profiles matching the portfolio's dominant archetype.`,
       ],
     },
   ];

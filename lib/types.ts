@@ -99,14 +99,8 @@ export interface CompanyMetrics {
   foundedYear: number;
   founders: string[];
   founderBackgrounds: string[];
-  totalFunding: string;
-  latestRound: string;
-  employeeCount: number;
-  hiringVelocity: number;
-  githubStars?: number;
-  productHuntVotes?: number;
-  websiteTraffic?: number;
-  aiSummary: string;
+  /** Broad stage label only — e.g. "Seed", "Series A–B", "Growth", "Public", "Acquired". */
+  stage: string;
 }
 
 export interface PortfolioInsight {
@@ -121,16 +115,6 @@ export interface PortfolioAnalysis {
   companies: CompanyMetrics[];
   sectorAnalysis: { sector: string; percent: number }[];
   founderAnalysis: { pattern: string; percent: number }[];
-  fundingAnalysis: {
-    averageEntryStage: string;
-    averageFirstCheck: string;
-    medianFundingRaised: string;
-  };
-  successRankings: {
-    fundingRaised: string[];
-    employeeGrowth: string[];
-    productAdoption: string[];
-  };
   topPerformers: string[];
   emergingThesis: string;
   insights: PortfolioInsight[];
