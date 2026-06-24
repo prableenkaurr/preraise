@@ -134,9 +134,6 @@ function SingleAnalysis({ analysis }: { analysis: PortfolioAnalysis }) {
         <CompanyTable companies={analysis.companies} />
       </MemoSection>
 
-      <MemoSection id="portfolio-sources" index={5} title="Source Notes">
-        <Bullets items={analysis.sourceNotes} />
-      </MemoSection>
     </div>
   );
 }

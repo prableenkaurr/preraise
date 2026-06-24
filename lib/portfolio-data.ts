@@ -396,11 +396,7 @@ export function buildPortfolioAnalysis(firm: string): PortfolioAnalysis {
       .map((s) => s.sector.toLowerCase())
       .join(" and ")}, with a bias toward founders who can turn technical or product insight into durable distribution.`,
     insights: [],
-    sourceNotes: [
-      "Portfolio set uses built-in public examples for supported firms until a live portfolio API is configured.",
-      "Funding, employee, traffic, GitHub, and Product Hunt values are public-signal estimates for product analysis, not investment-grade diligence.",
-      "Connect Crunchbase, Clearbit, Product Hunt, GitHub, and LinkedIn-compatible data providers to replace estimates with live metrics.",
-    ],
+    sourceNotes: [],
   };
 }
 
